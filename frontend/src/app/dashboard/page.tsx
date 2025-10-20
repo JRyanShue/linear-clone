@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar"
 import {
   Breadcrumb,
@@ -14,7 +16,13 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 
-export default function Page() {
+export default async function Page() {
+  const { userId } = await auth();
+
+  if (!userId) {
+    redirect('/');
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />

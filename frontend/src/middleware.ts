@@ -1,28 +1,12 @@
-import { auth } from '@/lib/auth';
-import { NextResponse } from 'next/server';
+import { clerkMiddleware } from '@clerk/nextjs/server'
 
-export default auth((req) => {
-  const { pathname } = req.nextUrl;
-  const isAuthenticated = !!req.auth;
-
-  // Public routes
-  const isPublicRoute = pathname === '/';
-
-  // If not authenticated and trying to access protected route
-  if (!isAuthenticated && !isPublicRoute) {
-    // Redirect to login page
-    return NextResponse.redirect(new URL('/', req.url));
-  }
-
-  // If authenticated and trying to access login page
-  if (isAuthenticated && pathname === '/') {
-    // Redirect authenticated users to dashboard
-    return NextResponse.redirect(new URL('/dashboard', req.url));
-  }
-
-  return NextResponse.next();
-});
+export default clerkMiddleware()
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-};
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
+  ],
+}
